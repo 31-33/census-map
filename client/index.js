@@ -10,13 +10,13 @@ map.fitBounds(nz_bounds);
 
 let layergroup = L.layerGroup().addTo(map);
 
-function drawPolygon(layergroup, coords, callback) {
+function drawPolygon(layergroup, coords, id, callback) {
 	const wkt = new Wkt.Wkt();
 	wkt.read(coords);
 	layergroup.addLayer(
 		wkt.toObject({
 			color: 'red',
-		}).on('click', () => callback(0))
+		}).on('click', () => callback(id))
 	);
 }
 
@@ -25,7 +25,7 @@ function onRegionClicked(region_id) {
 	// TODO: fetch data for {region_id}
 
 	layergroup.clearLayers();
-	// TODO: fetch areas with {region_id} and draw on map
+	drawAreas(region_id);
 }
 
 function onAreaClicked(area_id) {
@@ -33,15 +33,38 @@ function onAreaClicked(area_id) {
 	// TODO: fetch data for {area_id}
 
 	layergroup.clearLayers();
-	// TODO: fetch meshblocks with {area_id} and draw on map
+	drawMeshblocks(meshblock_id);
 }
 
 function onMeshblockClicked(meshblock_id) {
 	console.log(`User clicked meshblock: ${meshblock_id}`);
 
-	layergroup.clearLayers();
+	// layergroup.clearLayers();
 	// TODO: fetch data for {meshblock_id}
 }
 
-let test_region = "MULTIPOLYGON (((168 -50, 170 -40, 176 -30)))";
-drawPolygon(layergroup, test_region, this.onRegionClicked);
+function drawRegions(){
+	fetch('/regions')
+		.then(res => res.json())
+		.then(json => json.forEach(region => {
+			drawPolygon(layergroup, region.wkt, region.id, this.onRegionClicked);
+		}));
+};
+
+function drawAreas(region_id){
+	fetch(`/areas/${region_id}`)
+		.then(res => res.json())
+		.then(json => json.forEach(area => {
+			drawPolygon(layergroup, area.wkt, area.id, this.onAreaClicked);
+		}));
+}
+
+function drawMeshblocks(area_id){
+	fetch(`/meshblocks/${area_id}`)
+		.then(res => res.json())
+		.then(json => json.forEach(meshblock => {
+			drawPolygon(layergroup, meshblock.wkt, meshblock.id, this.onMeshblockClicked);
+		}));
+}
+
+drawRegions();
