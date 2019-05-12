@@ -33,7 +33,7 @@ function onAreaClicked(area_id) {
 	// TODO: fetch data for {area_id}
 
 	layergroup.clearLayers();
-	drawMeshblocks(meshblock_id);
+	drawMeshblocks(area_id);
 }
 
 function onMeshblockClicked(meshblock_id) {
