@@ -1,7 +1,13 @@
 var express = require('express');
 var sqlite3 = require('sqlite3').verbose();
+var fs = require('fs');
+var bz2 = require('unbzip2-stream');
 
 const PORT = process.env.PORT || 3000;
+
+fs.createReadStream('./data/census2013.db.bz2')
+    .pipe(bz2())
+    .pipe(fs.createWriteStream('./data/census2013.db'));
 
 const db = new sqlite3.Database(`./data/census2013.db`, sqlite3.OPEN_READONLY, err => {
     if(err) return console.log(`Error: ${err}`);

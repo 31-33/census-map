@@ -20,7 +20,8 @@
   "homepage": "https://github.com/31-33/census-map#readme",
   "dependencies": {
     "express": "^4.16.4",
-    "sqlite3": "^4.0.8"
+    "sqlite3": "^4.0.8",
+    "unbzip2-stream": "^1.3.3"
   },
   "devDependencies": {
     "nodemon": "^1.19.0"
