@@ -1,0 +1,28 @@
+{
+  "name": "census-map",
+  "version": "1.0.0",
+  "description": "COMPX532-19A Group Project",
+  "main": "apps.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/31-33/census-map.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/31-33/census-map/issues"
+  },
+  "homepage": "https://github.com/31-33/census-map#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "sqlite3": "^4.0.8"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.0"
+  }
+}
