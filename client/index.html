@@ -5,11 +5,30 @@
 		<script src="./lib/leaflet-1.4.0/leaflet.js" ></script>
 		<script src="./lib/wicket/wicket.js"></script>
 		<script src="./lib/wicket/wicket-leaflet.js"></script>
+		<script src="https://canvasjs.com/assets/script/canvasjs.min.js" ></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 	</head>
 	<body>
-		<div id="container">
-			<div id="map" />
-			<script src="./index.js"></script>
+		<div id = "mapContainer">
+			<div id="container" >
+				<div id="map"></div>
+				<script src="./index.js"></script>
+			</div>
 		</div>
+		<div id="chartPanel">
+			<div id="chartPanelHeader">
+				<h1>Census Explorer</h1>
+			</div>
+			<div id="chartContainer1" class="chartContainer">
+				<script src="./chart1.js"></script>
+			</div>
+			<div id="chartContainer2" class="chartContainer">
+				<script src="./chart2.js"></script>
+			</div>
+			<div id="chartContainer3" class="chartContainer">
+					<script src="./chart3.js"></script>
+			</div>
+		</div>
+
 	</body>
 </html>
