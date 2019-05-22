@@ -232,11 +232,13 @@ function createDataTables(){
 }
 
 function replaceMissing(array, startIndex){
+    array[0] = parseInt(array[0], 10);
     for(var i = startIndex; i < array.length; i++){
-        if(array[i] === '..c'){
+        if(array[i] === '..C' || array[i] === '*' || array[i] === '..' || array ===  ''){
             array[i] = 0
         }
     }
+    return array;
 }
 
 function loadRegionData(filename){
@@ -294,6 +296,6 @@ function loadMeshblockData(filename){
 // loadAreas('area-unit-2013.csv');
 
 // createDataTables();
-loadRegionData(`region-census-2013-data.csv`);
-loadAreaData(`area-census-2013-data.csv`);
-loadMeshblockData(`meshblock-census-2013-data.csv`);
+// loadRegionData(`region-census-2013-data.csv`);
+// loadAreaData(`area-census-2013-data.csv`);
+// loadMeshblockData(`meshblock-census-2013-data.csv`);
