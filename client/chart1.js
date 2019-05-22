@@ -20,8 +20,7 @@ var chart1 = new CanvasJS.Chart("chartContainer1", {
 	}]
 });
 
-function drawChart(result){
-	result.then(json => {
+function drawChart(json){
 		chart1.options.title.text = "Gender Distribution - " + json.name		
 		var male = json.usual_resident_male;
 		var female = json.usual_resident_female;
@@ -36,5 +35,4 @@ function drawChart(result){
 		chart1.options.data[0].toolTipContent = "<b>{label}</b>: {y}%";
 		chart1.options.data[0].indexLabel = "{label} - {y}%";
 		chart1.render();
-	})
 };

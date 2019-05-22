@@ -114,4 +114,30 @@ server.get('/nz/', (req, res) => {
     });
 });
 
+
+server.get('/region/:region_id', (req, res) => {
+    db.all(
+        "SELECT * FROM region_data WHERE id = ? LIMIT 1",
+        req.params.region_id,
+        (err, results) => res.send(results[0])
+    );
+});
+
+server.get('/area/:area_id', (req, res) => {
+    db.all(
+        "SELECT * FROM area_data WHERE id = ? LIMIT 1",
+        req.params.area_id,
+        (err, results) => res.send(results[0])
+    );
+});
+
+server.get('/meshblock/:meshblock_id', (req, res) => {
+    db.all(
+        "SELECT * FROM meshblock_data WHERE id = ? LIMIT 1",
+        req.params.meshblock_id,
+        (err, results) => res.send(results[0])
+    );
+});
+
+
 server.listen(PORT);

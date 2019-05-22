@@ -49,11 +49,11 @@ function drawPolygon(layergroup, data, color, callback) {
 }
 
 function onRegionClicked(region_id, bounds) {
-	console.log(`User clicked region: ${region_id}`);
-	// TODO: fetch data for {region_id}
-	
-	drawCharts();
+	fetch(`/region/${region_id}`)
+		.then(res => res.json())
+		.then(json => drawCharts(json));
 	map.fitBounds(bounds);
+
 	layergroup.clearLayers();
 	drawAreas(region_id);
 	previousID = region_id;
@@ -62,21 +62,20 @@ function onRegionClicked(region_id, bounds) {
 }
 
 function onAreaClicked(area_id, bounds) {
-	console.log(`User clicked area: ${area_id}`);
-	// TODO: fetch data for {area_id}
-
-	drawCharts();
+	fetch(`/area/${area_id}`)
+	.then(res => res.json())
+	.then(json => drawCharts(json));
 	map.fitBounds(bounds);
+	
 	layergroup.clearLayers();
 	drawMeshblocks(area_id);
 	state = layerState.MESHBLOCK
 }
 
 function onMeshblockClicked(meshblock_id, bounds) {
-	console.log(`User clicked meshblock: ${meshblock_id}`);
-	// TODO: fetch data for {meshblock_id}
-	
-	drawCharts();
+	fetch(`/meshblock/${meshblock_id}`)
+		.then(res => res.json())
+		.then(json => drawCharts(json));
 	map.fitBounds(bounds);
 }
 
@@ -89,6 +88,9 @@ function drawRegions(){
 		.then(json => json.forEach(region => {
 			drawPolygon(layergroup, region, 'red', this.onRegionClicked);
 		}));
+	fetch('/nz')
+		.then(res => res.json())
+		.then(json => drawCharts(json));
 };
 
 function drawAreas(region_id){
@@ -116,17 +118,13 @@ function decreaseRegionLevel(){
 	}
 	else if (state == layerState.AREA){
 		drawRegions();
-		drawCharts();
 	}
 	else if (state == layerState.MESHBLOCK){
 		onRegionClicked(previousID, previousBounds);
 	}
 }
 
-// TODO: remove fetch(NZ) hardcoding
-function drawCharts(){
-	var json = fetch('/nz').then(res => res.json());
-	
+function drawCharts(json){
 	$.getScript("chart1.js", function(){
 		drawChart(json);
 	});
@@ -141,9 +139,3 @@ function drawCharts(){
 }
 
 drawRegions();
-drawCharts();
-
-
-
-
-
