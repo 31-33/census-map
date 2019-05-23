@@ -15,6 +15,7 @@ const globalMax = {
 var heatmapProp = 'usual_resident_total';
 
 var zoomStack = [];
+var dataStack = [];
 
 var heatmapSelectionControl = L.Control.extend({
 	options: {
@@ -86,7 +87,10 @@ function drawPolygon(layergroup, data, color, callback) {
 function onRegionClicked(region_id, bounds) {
 	fetch(`/region/${region_id}`)
 		.then(res => res.json())
-		.then(json => drawCharts(json));
+		.then(json => {
+			dataStack.push(json);
+			drawCharts(json);
+		});
 
 	fetch(`/areas/${region_id}`)
 		.then(res => res.json())
@@ -102,8 +106,10 @@ function onRegionClicked(region_id, bounds) {
 function onAreaClicked(area_id, bounds) {
 	fetch(`/area/${area_id}`)
 		.then(res => res.json())
-		.then(json => drawCharts(json));
-
+		.then(json => {
+			dataStack.push(json);
+			drawCharts(json);
+		});
 	fetch(`/meshblocks/${area_id}`)
 		.then(res => res.json())
 		.then(json => {
@@ -118,7 +124,13 @@ function onAreaClicked(area_id, bounds) {
 function onMeshblockClicked(meshblock_id, bounds) {
 	fetch(`/meshblock/${meshblock_id}`)
 		.then(res => res.json())
-		.then(json => drawCharts(json));
+		.then(json => {
+			if(dataStack.length > 2){
+				dataStack.pop();
+			}
+			dataStack.push(json);
+			drawCharts(json);
+		});
 	map.fitBounds(bounds);
 }
 
@@ -188,6 +200,9 @@ function decreaseRegionLevel(){
 	if(zoomStack.length > 1){
 		zoomStack.pop();
 	}
+	if(dataStack.length > 1){
+		dataStack.pop();
+	}
 	redrawCurrentLevel();
 }
 
@@ -202,6 +217,18 @@ function redrawCurrentLevel(){
 			break;
 		case 3:
 			drawMeshblocks(zoomStack[2].data, zoomStack[2].bounds);
+			break;
+	}
+	switch(dataStack.length){
+		case 1: 
+		default:
+			drawCharts(dataStack[0]);
+			break;
+		case 2:
+			drawCharts(dataStack[1]);
+			break;
+		case 3:
+			drawCharts(dataStack[2]);
 			break;
 	}
 }
@@ -232,4 +259,7 @@ fetch('/regions')
 	});
 fetch('/nz')
 		.then(res => res.json())
-		.then(json => drawCharts(json));
+		.then(json => {
+			dataStack.push(json);
+			drawCharts(json)
+		});
