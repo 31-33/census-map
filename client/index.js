@@ -13,14 +13,31 @@ const globalMax = {
 	dwellings_total: 1000,
 };
 var heatmapProp = 'usual_resident_total';
-var previousID = null;
-var previousBounds = null;
-const layerState = {
-	REGION: 'region',
-	AREA: 'area',
-	MESHBLOCK: 'meshblock'
-}
-let state = layerState.REGION;
+
+var zoomStack = [];
+
+var heatmapSelectionControl = L.Control.extend({
+	options: {
+		position: 'topright'
+	},
+	onAdd: function(map){
+		var container = L.DomUtil.create('div', 'leaflet-bar leaflet control');
+		container.innerHTML = `
+		<select>
+			<option value='usual_resident_total'>Population</option>
+			<option value='median_income'>Median Income</option>
+			<option value='weekly_rent_median'>Median Weekly Rent</option>
+			<option value='dwellings_total'>Number of Dwellings</option>
+		</select`;
+
+		container.addEventListener('change', event => {
+			heatmapProp = event.target.value;
+			redrawCurrentLevel();
+		});
+
+		return container;
+	}
+})
 
 var backLevelControl = L.Control.extend({
 	options: {
@@ -47,6 +64,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}',
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
 	}).addTo(map);
 map.addControl(new backLevelControl());
+map.addControl(new heatmapSelectionControl());
 
 let layergroup = L.layerGroup().addTo(map);
 const wkt = new Wkt.Wkt();
@@ -69,24 +87,32 @@ function onRegionClicked(region_id, bounds) {
 	fetch(`/region/${region_id}`)
 		.then(res => res.json())
 		.then(json => drawCharts(json));
-	map.fitBounds(bounds);
 
-	layergroup.clearLayers();
-	drawAreas(region_id);
-	previousID = region_id;
-	previousBounds = bounds;
-	state = layerState.AREA;
+	fetch(`/areas/${region_id}`)
+		.then(res => res.json())
+		.then(json => {
+			zoomStack.push({
+				data: json,
+				bounds: bounds,
+			})
+			drawAreas(json, bounds);
+		});
 }
 
 function onAreaClicked(area_id, bounds) {
 	fetch(`/area/${area_id}`)
-	.then(res => res.json())
-	.then(json => drawCharts(json));
-	map.fitBounds(bounds);
-	
-	layergroup.clearLayers();
-	drawMeshblocks(area_id);
-	state = layerState.MESHBLOCK
+		.then(res => res.json())
+		.then(json => drawCharts(json));
+
+	fetch(`/meshblocks/${area_id}`)
+		.then(res => res.json())
+		.then(json => {
+			zoomStack.push({
+				data: json,
+				bounds: bounds,
+			});
+			drawMeshblocks(json, bounds);
+		});
 }
 
 function onMeshblockClicked(meshblock_id, bounds) {
@@ -116,63 +142,67 @@ function getHeatmapColour(value, rangeMin, rangeMax){
 	return colours[bucketIndex];
 }
 
-function drawRegions(){
-	map.fitBounds(nz_bounds);
+function drawRegions(json, parentBounds){
 	layergroup.clearLayers();
-	state = layerState.REGION;
-	fetch('/regions')
-		.then(res => res.json())
-		.then(json => json.forEach(region => 
-			drawPolygon(
-				layergroup, 
-				region, 
-				getHeatmapColour(region[heatmapProp], globalMin[heatmapProp], globalMax[heatmapProp]), 
-				this.onRegionClicked
-			)
-		));
-	fetch('/nz')
-		.then(res => res.json())
-		.then(json => drawCharts(json));
+	map.fitBounds(parentBounds);
+	
+	json.forEach(region => 
+		drawPolygon(
+			layergroup, 
+			region, 
+			getHeatmapColour(region[heatmapProp], globalMin[heatmapProp], globalMax[heatmapProp]), 
+			this.onRegionClicked
+		)
+	);
 };
 
-function drawAreas(region_id){
-	fetch(`/areas/${region_id}`)
-		.then(res => res.json())
-		.then(json => json.forEach(area => 
-			drawPolygon(
-				layergroup, 
-				area, 
-				getHeatmapColour(area[heatmapProp], globalMin[heatmapProp], globalMax[heatmapProp]), 
-				this.onAreaClicked
-			)
-		));
+function drawAreas(json, parentBounds){
+	layergroup.clearLayers();
+	map.fitBounds(parentBounds);
+
+	json.forEach(area => 
+		drawPolygon(
+			layergroup, 
+			area, 
+			getHeatmapColour(area[heatmapProp], globalMin[heatmapProp], globalMax[heatmapProp]), 
+			this.onAreaClicked
+		)
+	);
 }
 
-function drawMeshblocks(area_id){
-	fetch(`/meshblocks/${area_id}`)
-		.then(res => res.json())
-		.then(json => json.forEach(meshblock => 
-			drawPolygon(
-				layergroup, 
-				meshblock, 
-				getHeatmapColour(meshblock[heatmapProp], globalMin[heatmapProp], globalMax[heatmapProp]), 
-				this.onMeshblockClicked
-			)
-		));
+function drawMeshblocks(json, parentBounds){
+	layergroup.clearLayers();
+	map.fitBounds(parentBounds);
+
+	json.forEach(meshblock => 
+		drawPolygon(
+			layergroup, 
+			meshblock, 
+			getHeatmapColour(meshblock[heatmapProp], globalMin[heatmapProp], globalMax[heatmapProp]), 
+			this.onMeshblockClicked
+		)
+	);
 }
 
 function decreaseRegionLevel(){
-	console.log("Decrease - " + previousID);
-	
-	if (state == layerState.REGION){
-		previousID = null;
-		previousBounds = nz_bounds;
+	if(zoomStack.length > 1){
+		zoomStack.pop();
 	}
-	else if (state == layerState.AREA){
-		drawRegions();
-	}
-	else if (state == layerState.MESHBLOCK){
-		onRegionClicked(previousID, previousBounds);
+	redrawCurrentLevel();
+}
+
+function redrawCurrentLevel(){
+	switch(zoomStack.length){
+		case 1: 
+		default:
+			drawRegions(zoomStack[0].data, zoomStack[0].bounds);
+			break;
+		case 2:
+			drawAreas(zoomStack[1].data, zoomStack[1].bounds);
+			break;
+		case 3:
+			drawMeshblocks(zoomStack[2].data, zoomStack[2].bounds);
+			break;
 	}
 }
 
@@ -190,4 +220,16 @@ function drawCharts(json){
 	});
 }
 
-drawRegions();
+
+fetch('/regions')
+	.then(res => res.json())
+	.then(json => {
+		zoomStack.push({
+			data: json,
+			bounds: nz_bounds,
+		});
+		drawRegions(json, nz_bounds);
+	});
+fetch('/nz')
+		.then(res => res.json())
+		.then(json => drawCharts(json));
