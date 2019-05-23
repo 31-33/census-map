@@ -20,14 +20,14 @@ server.use('', express.static(`${__dirname}/client`));
 
 server.get('/regions', (req, res) => {
     db.all(
-        "SELECT wkt, name, id FROM region_coordinates", 
+        "SELECT wkt, name, id, median_income, usual_resident_total, weekly_rent_median, dwellings_total FROM region_coordinates", 
         (err, regions) => res.send(regions)
     );
 });
 
 server.get('/areas/:region_id', (req, res) => {
     db.all(
-        "SELECT wkt, name, id FROM area_coordinates WHERE region_id = ?",
+        "SELECT wkt, name, id, median_income, usual_resident_total, weekly_rent_median, dwellings_total FROM area_coordinates WHERE region_id = ?",
         req.params.region_id,
         (err, areas) => res.send(areas)
     );
@@ -35,7 +35,7 @@ server.get('/areas/:region_id', (req, res) => {
 
 server.get('/meshblocks/:area_id', (req, res) => {
     db.all(
-        "SELECT wkt, name, id FROM meshblock_coordinates WHERE area_id = ?",
+        "SELECT wkt, name, id, median_income, usual_resident_total, weekly_rent_median, dwellings_total FROM meshblock_coordinates WHERE area_id = ?",
         req.params.area_id,
         (err, meshblocks) => res.send(meshblocks)
     );
