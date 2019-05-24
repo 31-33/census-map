@@ -13,6 +13,35 @@ const globalMax = {
 	dwellings_total: 1000,
 };
 var heatmapProp = 'usual_resident_total';
+const colours = [
+	'#cce6ff',
+	'#99ccff',
+	'#66b3ff',
+	'#3399ff',
+	'#0080ff',
+	'#0066cc',
+	'#004d99',
+	'#004080',
+	'#00264d',
+	'#001a33',
+];
+
+var heatmapLegend = L.control({ position: 'topright' });
+heatmapLegend.onAdd = function(map) {
+	var container = L.DomUtil.create('div', 'leaflet');
+	container.innerHTML = `
+	<div style="display:inline-block; vertical-align: top;">
+		<div style="height: 185px; float:right;">${globalMin[heatmapProp]}</div>
+		<div>${globalMax[heatmapProp]}</div>
+	</div>
+	<div style="display:inline-block;">
+		${colours.map(colour => {
+			return `<div style="width: 40px; height: 20px; background-color: ${colour};"></div>`
+		}).join('')}
+	</div>`;
+
+	return container;
+}
 
 var zoomStack = [];
 var dataStack = [];
@@ -147,18 +176,6 @@ function onMeshblockClicked(meshblock_id, bounds) {
 	map.fitBounds(bounds);
 }
 
-const colours = [
-	'#cce6ff',
-	'#99ccff',
-	'#66b3ff',
-	'#3399ff',
-	'#0080ff',
-	'#0066cc',
-	'#004d99',
-	'#004080',
-	'#00264d',
-	'#001a33',
-];
 function getHeatmapColour(value, rangeMin, rangeMax){
 	if(value === ''){
 		return '#606060';
@@ -179,6 +196,9 @@ function drawRegions(json, parentBounds){
 			this.onRegionClicked
 		)
 	);
+	map.removeControl(heatmapLegend);
+	map.addControl(heatmapLegend);
+	console.log(heatmapLegend);
 };
 
 function drawAreas(json, parentBounds){
@@ -193,6 +213,8 @@ function drawAreas(json, parentBounds){
 			this.onAreaClicked
 		)
 	);
+	map.removeControl(heatmapLegend);
+	map.addControl(heatmapLegend);
 }
 
 function drawMeshblocks(json, parentBounds){
@@ -207,6 +229,8 @@ function drawMeshblocks(json, parentBounds){
 			this.onMeshblockClicked
 		)
 	);
+	map.removeControl(heatmapLegend);
+	map.addControl(heatmapLegend);
 }
 
 function decreaseRegionLevel(){
