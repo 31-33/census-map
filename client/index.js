@@ -25,6 +25,13 @@ const colours = [
 	'#00264d',
 	'#001a33',
 ];
+const charts = [
+	"chart1.js",
+	"chart2.js",
+	"chart3.js",
+	"chart4.js",
+	"chart5.js"
+]
 
 var heatmapLegend = L.control({ position: 'topright' });
 heatmapLegend.onAdd = function(map) {
@@ -271,16 +278,33 @@ function redrawCurrentLevel(){
 }
 
 function drawCharts(json){
-	$.getScript("chart1.js", function(){
-		drawChart(json);
-	});
+	var header = document.getElementById("chartPanelHeader");
+
+	if (json.region_name == null && dataStack[0].name == json.name){
+		header.innerHTML = "";
+	}
+	else {
+		header.innerHTML = json.name;
+	}	
+
+	if (json.area_name != null && json.area_name != json.name){
+		header.innerHTML = json.area_name + " -> " + header.innerHTML;
+	}
+
+	if (json.region_name != null && json.region_name != json.name){
+		header.innerHTML = json.region_name + " -> " + header.innerHTML;
+	}
+
+	if (json.region_name == null && dataStack[0].name != json.name){
+		header.innerHTML = dataStack[0].name + " -> " + header.innerHTML;
+	}
 	
-	$.getScript("chart2.js", function(){
-		drawChart(json);
-	});
-	
-	$.getScript("chart3.js", function(){
-		drawChart(json);
+	header.innerHTML = "<h1>" + json.name + "</h1>" + header.innerHTML; 
+
+	charts.forEach(chart => {
+		$.getScript(chart, function(){
+			drawChart(json);
+		});
 	});
 }
 

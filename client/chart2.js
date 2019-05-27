@@ -14,23 +14,11 @@ var chart2 = new CanvasJS.Chart("chartContainer2", {
 	},
 	data: [{
 		type: "column",
-		//yValueFormatString: "#,##0.0#\"%\"",
-		dataPoints: [
-			{ label: "India", y: 7.1 },	
-			{ label: "China", y: 6.70 },	
-			{ label: "Indonesia", y: 5.00 },
-			{ label: "Australia", y: 2.50 },	
-			{ label: "Mexico", y: 2.30 },
-			{ label: "UK", y: 1.80 },
-			{ label: "United States", y: 1.60 },
-			{ label: "Japan", y: 1.60 }
-			
-		]
 	}]
 });
 
 function drawChart(json){
-	chart2.options.title.text = "Resident ages - " + json.name
+	chart2.options.title.text = "Resident ages"
 	
 	
 	chart2.options.data[0].dataPoints = [

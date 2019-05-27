@@ -21,7 +21,7 @@ var chart1 = new CanvasJS.Chart("chartContainer1", {
 });
 
 function drawChart(json){
-		chart1.options.title.text = "Gender Distribution - " + json.name		
+		chart1.options.title.text = "Gender Distribution"		
 		var male = json.usual_resident_male;
 		var female = json.usual_resident_female;
 		var total = male + female;

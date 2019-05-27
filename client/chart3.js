@@ -17,7 +17,7 @@ var chart3 = new CanvasJS.Chart("chartContainer3", {
 });
 
 function drawChart(json){
-	chart3.options.title.text = "Languages - " + json.name
+	chart3.options.title.text = "Languages"
 			
 	chart3.options.data[0].dataPoints = [
 		{ y: json.language_english, label: "English" },
