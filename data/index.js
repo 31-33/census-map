@@ -319,7 +319,7 @@ function loadRegionHeatmapData(filename){
     .on("data", data => {
         db.run(
             `UPDATE region_coordinates
-                SET median_income = ?, usual_resident_total = ?, weekly_rent_median = ?, dwellings_total = ?
+                SET usual_resident_total = ?, median_income = ?, weekly_rent_median = ?, dwellings_total = ?
                 WHERE id = ?`,
                 normalizeMissing([data[44], data[45], data[46], data[47], data[3]])
         )
@@ -335,7 +335,7 @@ function loadAreaHeatmapData(filename){
     .on("data", data => {
         db.run(
             `UPDATE area_coordinates
-                SET median_income = ?, usual_resident_total = ?, weekly_rent_median = ?, dwellings_total = ?
+                SET usual_resident_total = ?, median_income = ?, weekly_rent_median = ?, dwellings_total = ?
                 WHERE id = ?`,
                 normalizeMissing([data[44], data[45], data[46], data[47], data[3]])
         )
@@ -351,7 +351,7 @@ function loadMeshblockHeatmapData(filename){
     .on("data", data => {
         db.run(
             `UPDATE meshblock_coordinates
-                SET median_income = ?, usual_resident_total = ?, weekly_rent_median = ?, dwellings_total = ?
+                SET usual_resident_total = ?, median_income = ?, weekly_rent_median = ?, dwellings_total = ?
                 WHERE id = ?`,
                 normalizeMissing([data[44], data[45], data[46], data[47], data[3]])
         )
