@@ -137,6 +137,9 @@ function onRegionClicked(region_id, bounds) {
 	fetch(`/region/${region_id}`)
 		.then(res => res.json())
 		.then(json => {
+			while(dataStack.length > 1){
+				dataStack.pop();
+			}
 			dataStack.push(json);
 			drawCharts(json);
 		});
@@ -144,6 +147,9 @@ function onRegionClicked(region_id, bounds) {
 	fetch(`/areas/${region_id}`)
 		.then(res => res.json())
 		.then(json => {
+			while(zoomStack.length > 1){
+				zoomStack.pop();
+			}
 			zoomStack.push({
 				data: json,
 				bounds: bounds,
@@ -156,12 +162,18 @@ function onAreaClicked(area_id, bounds) {
 	fetch(`/area/${area_id}`)
 		.then(res => res.json())
 		.then(json => {
+			while(dataStack.length > 2){
+				dataStack.pop();
+			}
 			dataStack.push(json);
 			drawCharts(json);
 		});
 	fetch(`/meshblocks/${area_id}`)
 		.then(res => res.json())
 		.then(json => {
+			while(zoomStack.length > 2){
+				dataStack.pop();
+			}
 			zoomStack.push({
 				data: json,
 				bounds: bounds,
@@ -174,7 +186,7 @@ function onMeshblockClicked(meshblock_id, bounds) {
 	fetch(`/meshblock/${meshblock_id}`)
 		.then(res => res.json())
 		.then(json => {
-			if(dataStack.length > 2){
+			while(dataStack.length > 2){
 				dataStack.pop();
 			}
 			dataStack.push(json);
@@ -205,7 +217,6 @@ function drawRegions(json, parentBounds){
 	);
 	map.removeControl(heatmapLegend);
 	map.addControl(heatmapLegend);
-	console.log(heatmapLegend);
 };
 
 function drawAreas(json, parentBounds){
