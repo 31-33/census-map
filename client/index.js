@@ -299,7 +299,7 @@ function drawCharts(json){
 		header.innerHTML = dataStack[0].name + " -> " + header.innerHTML;
 	}
 	
-	header.innerHTML = "<h1>" + json.name + "</h1>" + header.innerHTML; 
+	header.innerHTML = "<h1> Census Explorer - " + json.name + "</h1>" + header.innerHTML; 
 
 	charts.forEach(chart => {
 		$.getScript(chart, function(){
@@ -307,7 +307,6 @@ function drawCharts(json){
 		});
 	});
 }
-
 
 fetch('/regions')
 	.then(res => res.json())

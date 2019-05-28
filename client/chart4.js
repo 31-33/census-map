@@ -7,7 +7,7 @@ var chart4 = new CanvasJS.Chart("chartContainer4", {
 	},
 	data: [{
 		type: "pie",
-		startAngle: 25,
+		startAngle: 0,
 		toolTipContent: "<b>{label}</b>: {y}",
 		//showInLegend: "true",
 		//legendText: "{label}",
@@ -18,9 +18,11 @@ var chart4 = new CanvasJS.Chart("chartContainer4", {
 
 function drawChart(json){	
 	
+	var not_owned_corrected = json.dwelling_not_owned - json.dwelling_rented;
+
 	chart4.options.data[0].dataPoints = [
 		{ y: json.dwelling_held_in_family_trust, label: "Held in family trust" },
-		{ y: json.dwelling_not_owned, label: "Not owned" },
+		{ y: not_owned_corrected, label: "Not owned or other" },
 		{ y: json.dwelling_owned_or_partly_owned, label: "Owned or partly owned" },
 		{ y: json.dwelling_rented, label: "Rented" },
 	];
