@@ -1,17 +1,7 @@
 var map = L.map('map');
 const nz_bounds = [[-33.87, 164.36], [-48.17, 179.30]];
-const globalMin = {
-	median_income: 0,
-	usual_resident_total: 0,
-	weekly_rent_median: 20,
-	dwellings_total: 0,
-};
-const globalMax = {
-	median_income: 1896,
-	usual_resident_total: 150000,
-	weekly_rent_median: 500,
-	dwellings_total: 1000,
-};
+var heatmap_range_MIN = 0;
+var heatmap_range_MAX = 0;
 var heatmapProp = 'usual_resident_total';
 const colours = [
 	'#cce6ff',
@@ -38,8 +28,8 @@ heatmapLegend.onAdd = function(map) {
 	var container = L.DomUtil.create('div', 'leaflet');
 	container.innerHTML = `
 	<div style="display:inline-block; vertical-align: top;">
-		<div style="height: 185px; float:right;">${globalMin[heatmapProp]}</div>
-		<div>${globalMax[heatmapProp]}</div>
+		<div style="height: 185px; float:right;">${heatmap_range_MIN}</div>
+		<div>${heatmap_range_MAX}</div>
 	</div>
 	<div style="display:inline-block;">
 		${colours.map(colour => {
@@ -195,7 +185,7 @@ function onMeshblockClicked(meshblock_id, bounds) {
 	map.fitBounds(bounds);
 }
 
-function getHeatmapColour(value, rangeMin, rangeMax){
+function getHeatmapColour(value, rangeMin = heatmap_range_MIN, rangeMax = heatmap_range_MAX){
 	if(value === ''){
 		return '#606060';
 	}
@@ -206,47 +196,61 @@ function getHeatmapColour(value, rangeMin, rangeMax){
 function drawRegions(json, parentBounds){
 	layergroup.clearLayers();
 	map.fitBounds(parentBounds);
+
+	var heatmap_values = json.map((val) => val[heatmapProp]);
+	heatmap_range_MIN = Math.min(...heatmap_values);
+	heatmap_range_MAX = Math.max(...heatmap_values);
 	
 	json.forEach(region => 
 		drawPolygon(
 			layergroup, 
 			region, 
-			getHeatmapColour(region[heatmapProp], globalMin[heatmapProp], globalMax[heatmapProp]), 
+			getHeatmapColour(region[heatmapProp]), 
 			this.onRegionClicked
 		)
 	);
-	map.removeControl(heatmapLegend);
-	map.addControl(heatmapLegend);
+	updateHeatmapLegend();
 };
 
 function drawAreas(json, parentBounds){
 	layergroup.clearLayers();
 	map.fitBounds(parentBounds);
 
+	const heatmap_values = json.map((val) => val[heatmapProp]);
+	heatmap_range_MIN = Math.min(...heatmap_values);
+	heatmap_range_MAX = Math.max(...heatmap_values);
+
 	json.forEach(area => 
 		drawPolygon(
 			layergroup, 
 			area, 
-			getHeatmapColour(area[heatmapProp], globalMin[heatmapProp], globalMax[heatmapProp]), 
+			getHeatmapColour(area[heatmapProp]), 
 			this.onAreaClicked
 		)
 	);
-	map.removeControl(heatmapLegend);
-	map.addControl(heatmapLegend);
+	updateHeatmapLegend();
 }
 
 function drawMeshblocks(json, parentBounds){
 	layergroup.clearLayers();
 	map.fitBounds(parentBounds);
 
+	const heatmap_values = json.map((val) => val[heatmapProp]);
+	heatmap_range_MIN = Math.min(...heatmap_values);
+	heatmap_range_MAX = Math.max(...heatmap_values);
+
 	json.forEach(meshblock => 
 		drawPolygon(
 			layergroup, 
 			meshblock, 
-			getHeatmapColour(meshblock[heatmapProp], globalMin[heatmapProp], globalMax[heatmapProp]), 
+			getHeatmapColour(meshblock[heatmapProp]), 
 			this.onMeshblockClicked
 		)
 	);
+	updateHeatmapLegend();
+}
+
+function updateHeatmapLegend(){
 	map.removeControl(heatmapLegend);
 	map.addControl(heatmapLegend);
 }
