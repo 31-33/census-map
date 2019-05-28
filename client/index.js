@@ -95,7 +95,6 @@ map.addControl(new heatmapSelectionControl());
 
 let layergroup = L.layerGroup().addTo(map);
 const wkt = new Wkt.Wkt();
-var infoPopup = L.popup();
 
 function drawPolygon(layergroup, data, color, callback) {
 	wkt.read(data.wkt);
@@ -109,17 +108,20 @@ function drawPolygon(layergroup, data, color, callback) {
 	layergroup.addLayer(
 		polygon
 			.on('click', () => callback(data.id, polygon._bounds))
-			.on('mouseover', (event) => {
-				infoPopup.setLatLng(polygon._bounds.getCenter()).setContent(`
-					<h3>${data.name}</h3>
-					<ul>
-						<li>Median Income: ${data.median_income}</li>
-						<li>Population: ${data.usual_resident_total}</li>
-						<li>Median Weekly Rent: ${data.weekly_rent_median}</li>
-						<li>Number of Dwellings: ${data.dwellings_total}</li>
-					</ul>`).openOn(map);
-			})
-			.on('mouseout', (event) => map.closePopup(infoPopup))
+			.bindTooltip(`
+				<h3>${data.name}</h3>
+				<ul>
+					<li>Median Income: ${data.median_income}</li>
+					<li>Population: ${data.usual_resident_total}</li>
+					<li>Median Weekly Rent: ${data.weekly_rent_median}</li>
+					<li>Number of Dwellings: ${data.dwellings_total}</li>
+				</ul>`,
+				{
+					direction: 'left',
+					offset: L.point(-10, -10),
+					sticky: true,
+				}
+			)
 	);
 }
 
